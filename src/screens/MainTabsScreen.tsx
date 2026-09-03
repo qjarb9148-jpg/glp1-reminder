@@ -2,6 +2,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLanguage } from '../i18n/LanguageContext';
 import { MainTabKey, RootStackParamList } from '../navigation/types';
 import HistoryScreen from './HistoryScreen';
 import HomeScreen from './HomeScreen';
@@ -9,17 +10,19 @@ import InventoryScreen from './InventoryScreen';
 import SettingsScreen from './SettingsScreen';
 import SideEffectsScreen from './SideEffectsScreen';
 
-const TABS: { key: MainTabKey; label: string; icon: string }[] = [
-  { key: 'home', label: '홈', icon: '🏠' },
-  { key: 'history', label: '기록', icon: '📋' },
-  { key: 'sideEffects', label: '부작용', icon: '🩺' },
-  { key: 'inventory', label: '재고', icon: '💊' },
-  { key: 'settings', label: '설정', icon: '⚙️' },
+const TAB_ICONS: { key: MainTabKey; icon: string }[] = [
+  { key: 'home', icon: '🏠' },
+  { key: 'history', icon: '📋' },
+  { key: 'sideEffects', icon: '🩺' },
+  { key: 'inventory', icon: '💊' },
+  { key: 'settings', icon: '⚙️' },
 ];
 
 export default function MainTabsScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'Main'>>();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<MainTabKey>(route.params?.initialTab ?? 'home');
+  const tabs = TAB_ICONS.map((tab) => ({ ...tab, label: t.tabs[tab.key] }));
 
   useEffect(() => {
     if (route.params?.initialTab) {
@@ -39,7 +42,7 @@ export default function MainTabsScreen() {
 
       <SafeAreaView edges={['bottom']} style={styles.tabBarSafeArea}>
         <View style={styles.tabBar}>
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <TouchableOpacity
               key={tab.key}
               style={styles.tabButton}

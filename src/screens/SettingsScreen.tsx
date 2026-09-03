@@ -1,15 +1,25 @@
 import React, { useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LanguagePicker from '../components/LanguagePicker';
 import { useAppData } from '../context/AppDataContext';
-import { WEEKDAY_LABELS_KO, formatDate, toDateKey } from '../utils/dateUtils';
+import { useLanguage } from '../i18n/LanguageContext';
+import { SUPPORTED_LANGUAGES } from '../i18n/languages';
+import { formatDate, toDateKey } from '../utils/dateUtils';
 
 export default function SettingsScreen() {
   const { profile, settings, updateSettings, saveProfile, resetAllData } = useAppData();
+  const { t, languagePreference } = useLanguage();
   const [hour, setHour] = useState(String(settings.notificationHour));
   const [minute, setMinute] = useState(String(settings.notificationMinute));
   const [escalationDate, setEscalationDate] = useState(toDateKey(new Date()));
   const [escalationDose, setEscalationDose] = useState('');
+  const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
+
+  const currentLanguageLabel =
+    languagePreference === 'system'
+      ? t.settings.systemLanguageLabel
+      : SUPPORTED_LANGUAGES.find((l) => l.code === languagePreference)?.nativeName ?? languagePreference;
 
   const handleSaveTime = async () => {
     const h = parseInt(hour, 10);
@@ -17,7 +27,7 @@ export default function SettingsScreen() {
     if (Number.isNaN(h) || h < 0 || h > 23) return;
     if (Number.isNaN(m) || m < 0 || m > 59) return;
     await updateSettings({ notificationHour: h, notificationMinute: m });
-    Alert.alert('저장됨', '알림 시간이 변경되었어요.');
+    Alert.alert(t.settings.savedTitle, t.settings.savedBody);
   };
 
   const handleChangeDay = async (dayOfWeek: number) => {
@@ -48,18 +58,24 @@ export default function SettingsScreen() {
   };
 
   const handleReset = () => {
-    Alert.alert('데이터 초기화', '모든 기록이 삭제돼요. 계속할까요?', [
-      { text: '취소', style: 'cancel' },
-      { text: '초기화', style: 'destructive', onPress: () => resetAllData() },
+    Alert.alert(t.settings.resetTitle, t.settings.resetBody, [
+      { text: t.settings.resetCancel, style: 'cancel' },
+      { text: t.settings.resetConfirm, style: 'destructive', onPress: () => resetAllData() },
     ]);
   };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>설정</Text>
+        <Text style={styles.title}>{t.settings.title}</Text>
 
-        <Text style={styles.label}>알림 시간</Text>
+        <Text style={styles.label}>{t.settings.languageLabel}</Text>
+        <TouchableOpacity style={styles.languageRow} onPress={() => setLanguagePickerVisible(true)}>
+          <Text style={styles.languageRowText}>{currentLanguageLabel}</Text>
+          <Text style={styles.languageRowChevron}>›</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.label}>{t.settings.notificationTimeLabel}</Text>
         <View style={styles.timeRow}>
           <TextInput
             style={styles.timeInput}
@@ -77,15 +93,15 @@ export default function SettingsScreen() {
             maxLength={2}
           />
           <TouchableOpacity style={styles.saveButton} onPress={handleSaveTime}>
-            <Text style={styles.saveButtonText}>저장</Text>
+            <Text style={styles.saveButtonText}>{t.settings.save}</Text>
           </TouchableOpacity>
         </View>
 
         {profile && (
           <>
-            <Text style={styles.label}>투여 요일</Text>
+            <Text style={styles.label}>{t.settings.dayLabel}</Text>
             <View style={styles.chipRow}>
-              {WEEKDAY_LABELS_KO.map((label, index) => (
+              {t.weekdaysShort.map((label, index) => (
                 <TouchableOpacity
                   key={label}
                   style={[styles.dayChip, profile.dayOfWeek === index && styles.chipSelected]}
@@ -102,7 +118,7 @@ export default function SettingsScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-            <Text style={styles.label}>용량 증량 스케줄</Text>
+            <Text style={styles.label}>{t.settings.doseScheduleLabel}</Text>
             {upcomingSchedule.map((entry) => (
               <View key={entry.date} style={styles.scheduleRow}>
                 <Text style={styles.scheduleDate}>{formatDate(entry.date)}</Text>
@@ -115,26 +131,28 @@ export default function SettingsScreen() {
                 style={[styles.input, { flex: 1.4 }]}
                 value={escalationDate}
                 onChangeText={setEscalationDate}
-                placeholder="YYYY-MM-DD"
+                placeholder={t.settings.escalationDatePlaceholder}
               />
               <TextInput
                 style={[styles.input, { flex: 1 }]}
                 value={escalationDose}
                 onChangeText={setEscalationDose}
                 keyboardType="decimal-pad"
-                placeholder="mg"
+                placeholder={t.settings.escalationDosePlaceholder}
               />
               <TouchableOpacity style={styles.saveButton} onPress={handleAddEscalation}>
-                <Text style={styles.saveButtonText}>추가</Text>
+                <Text style={styles.saveButtonText}>{t.settings.add}</Text>
               </TouchableOpacity>
             </View>
           </>
         )}
 
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-          <Text style={styles.resetButtonText}>데이터 초기화</Text>
+          <Text style={styles.resetButtonText}>{t.settings.resetButton}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <LanguagePicker visible={languagePickerVisible} onClose={() => setLanguagePickerVisible(false)} />
     </SafeAreaView>
   );
 }
@@ -144,6 +162,17 @@ const styles = StyleSheet.create({
   container: { padding: 20, paddingBottom: 48 },
   title: { fontSize: 20, fontWeight: '700', marginBottom: 20 },
   label: { fontSize: 14, fontWeight: '600', marginTop: 16, marginBottom: 8 },
+  languageRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F5F6FA',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  languageRowText: { fontSize: 15, color: '#333' },
+  languageRowChevron: { fontSize: 18, color: '#999' },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInput: {
     width: 60,

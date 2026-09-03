@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LanguagePreference } from '../i18n/languages';
 import {
   AppSettings,
   DoseRecord,
@@ -14,6 +15,10 @@ const KEYS = {
   inventory: '@glp1/inventory',
   settings: '@glp1/settings',
 } as const;
+
+// Stored separately from KEYS: a language choice is a device/app preference,
+// not medication data, so "데이터 초기화" (resetAll) must not clear it.
+const LANGUAGE_KEY = '@glp1/languagePreference';
 
 export const DEFAULT_SETTINGS: AppSettings = {
   notificationHour: 9,
@@ -55,6 +60,9 @@ export const storage = {
 
   getSettings: () => getJson<AppSettings>(KEYS.settings, DEFAULT_SETTINGS),
   setSettings: (value: AppSettings) => setJson(KEYS.settings, value),
+
+  getLanguagePreference: () => getJson<LanguagePreference>(LANGUAGE_KEY, 'system'),
+  setLanguagePreference: (value: LanguagePreference) => setJson(LANGUAGE_KEY, value),
 
   resetAll: async () => {
     await AsyncStorage.removeMany(Object.values(KEYS));

@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { DEFAULT_INVENTORY, DEFAULT_SETTINGS, storage } from '../storage/storage';
 import {
   AppSettings,
@@ -44,6 +45,7 @@ interface AppDataContextValue {
 const AppDataContext = createContext<AppDataContextValue | undefined>(undefined);
 
 export function AppDataProvider({ children }: { children: React.ReactNode }) {
+  const { resolvedLanguage } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<MedicationProfile | null>(null);
   const [doseRecords, setDoseRecords] = useState<DoseRecord[]>([]);
@@ -82,7 +84,8 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       await scheduleWeeklyDoseReminder(
         nextProfile,
         nextSettings.notificationHour,
-        nextSettings.notificationMinute
+        nextSettings.notificationMinute,
+        resolvedLanguage
       );
 
       if (nextInventory.pensRemaining > 0) {
@@ -91,10 +94,10 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
           nextRecords,
           nextInventory.pensRemaining
         );
-        await scheduleRefillReminder(refillReminderDate);
+        await scheduleRefillReminder(refillReminderDate, resolvedLanguage);
       }
     },
-    []
+    [resolvedLanguage]
   );
 
   const saveProfile = useCallback(
@@ -111,7 +114,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
 
   const addDoseRecord = useCallback(
     async (site: InjectionSite, notes?: string) => {
-      if (!profile) throw new Error('약물 프로필이 설정되지 않았어요.');
+      if (!profile) throw new Error('Medication profile is not set up yet.');
       const record: DoseRecord = {
         id: generateId(),
         dateTime: new Date().toISOString(),
@@ -174,6 +177,13 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     setInventory(DEFAULT_INVENTORY);
     setSettings(DEFAULT_SETTINGS);
   }, []);
+
+  // Re-localize already-scheduled notification text when the active language changes.
+  useEffect(() => {
+    if (loading) return;
+    syncNotifications(profile, doseRecords, inventory, settings);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolvedLanguage]);
 
   const value = useMemo(
     () => ({
