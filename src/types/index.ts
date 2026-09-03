@@ -1,20 +1,24 @@
-export type DrugName = '위고비' | '마운자로' | '오젬픽' | '기타';
+// Internal identifiers only — never rendered directly. Display labels are
+// looked up per-language via src/i18n (see translations/*.ts `drugNames`,
+// `sites`, `symptoms`), so the app can be localized without touching
+// stored data.
+export type DrugName = 'wegovy' | 'mounjaro' | 'ozempic' | 'other';
 
-export type InjectionSite = '복부' | '허벅지-좌' | '허벅지-우' | '팔-좌' | '팔-우';
+export const DRUG_NAMES: DrugName[] = ['wegovy', 'mounjaro', 'ozempic', 'other'];
+
+export type InjectionSite = 'abdomen' | 'thigh_left' | 'thigh_right' | 'arm_left' | 'arm_right';
 
 export const INJECTION_SITES: InjectionSite[] = [
-  '복부',
-  '허벅지-좌',
-  '허벅지-우',
-  '팔-좌',
-  '팔-우',
+  'abdomen',
+  'thigh_left',
+  'thigh_right',
+  'arm_left',
+  'arm_right',
 ];
 
-export type Symptom = '메스꺼움' | '변비' | '설사' | '두통' | '기타';
+export type Symptom = 'nausea' | 'constipation' | 'diarrhea' | 'headache' | 'other';
 
-export const SYMPTOMS: Symptom[] = ['메스꺼움', '변비', '설사', '두통', '기타'];
-
-export const DRUG_NAMES: DrugName[] = ['위고비', '마운자로', '오젬픽', '기타'];
+export const SYMPTOMS: Symptom[] = ['nausea', 'constipation', 'diarrhea', 'headache', 'other'];
 
 export interface DoseScheduleEntry {
   /** ISO date string (yyyy-MM-dd) the new dose takes effect */

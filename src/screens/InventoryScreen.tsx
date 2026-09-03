@@ -2,11 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppData } from '../context/AppDataContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { formatDate } from '../utils/dateUtils';
 import { getRefillInfo } from '../utils/schedule';
 
 export default function InventoryScreen() {
   const { profile, doseRecords, inventory, setPensRemaining } = useAppData();
+  const { t } = useLanguage();
   const [input, setInput] = useState(String(inventory.pensRemaining));
 
   const refillInfo = useMemo(
@@ -29,10 +31,10 @@ export default function InventoryScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <View style={styles.container}>
-        <Text style={styles.title}>펜 재고</Text>
+        <Text style={styles.title}>{t.inventory.title}</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>남은 펜 개수</Text>
+          <Text style={styles.cardLabel}>{t.inventory.remainingLabel}</Text>
           <View style={styles.stepperRow}>
             <TouchableOpacity style={styles.stepperButton} onPress={() => handleAdjust(-1)}>
               <Text style={styles.stepperButtonText}>-</Text>
@@ -44,7 +46,7 @@ export default function InventoryScreen() {
           </View>
         </View>
 
-        <Text style={styles.label}>직접 입력</Text>
+        <Text style={styles.label}>{t.inventory.manualInputLabel}</Text>
         <View style={styles.inputRow}>
           <TextInput
             style={styles.input}
@@ -53,18 +55,20 @@ export default function InventoryScreen() {
             keyboardType="number-pad"
           />
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>저장</Text>
+            <Text style={styles.saveButtonText}>{t.inventory.save}</Text>
           </TouchableOpacity>
         </View>
 
         {refillInfo && (
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>처방 리필 예정일</Text>
+            <Text style={styles.cardLabel}>{t.inventory.refillTitle}</Text>
             <Text style={styles.refillDate}>{formatDate(refillInfo.refillReminderDate.toISOString())}</Text>
             <Text style={styles.cardSub}>
-              펜 소진 예상일: {formatDate(refillInfo.runOutDate.toISOString())} (D
-              {refillInfo.daysUntilRunOut >= 0 ? '-' : '+'}
-              {Math.abs(refillInfo.daysUntilRunOut)})
+              {t.inventory.runOutLabel(formatDate(refillInfo.runOutDate.toISOString()))} (
+              {refillInfo.daysUntilRunOut >= 0
+                ? t.home.dMinus(refillInfo.daysUntilRunOut)
+                : t.home.dPlus(Math.abs(refillInfo.daysUntilRunOut))}
+              )
             </Text>
           </View>
         )}

@@ -27,7 +27,7 @@ export const AdEventType = {
 export function BannerAd() {
   return (
     <View style={{ padding: 8, alignItems: 'center' }}>
-      <Text style={{ fontSize: 11, color: '#999' }}>광고 배너 (웹 미리보기에서는 표시되지 않음)</Text>
+      <Text style={{ fontSize: 11, color: '#999' }}>Ad banner (not shown in the web preview)</Text>
     </View>
   );
 }

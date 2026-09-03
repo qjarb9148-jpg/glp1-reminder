@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppData } from '../context/AppDataContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { SYMPTOMS, Symptom } from '../types';
 import { formatDate, toDateKey } from '../utils/dateUtils';
 
@@ -10,6 +11,7 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 export default function SideEffectsScreen() {
   const { sideEffectLogs, addSideEffectLog } = useAppData();
+  const { t } = useLanguage();
   const [selectedSymptoms, setSelectedSymptoms] = useState<Symptom[]>([]);
   const [intensity, setIntensity] = useState(1);
   const [notes, setNotes] = useState('');
@@ -59,9 +61,9 @@ export default function SideEffectsScreen() {
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View>
-            <Text style={styles.title}>부작용 기록</Text>
+            <Text style={styles.title}>{t.sideEffects.title}</Text>
 
-            <Text style={styles.label}>증상 (다중 선택)</Text>
+            <Text style={styles.label}>{t.sideEffects.symptomsLabel}</Text>
             <View style={styles.chipRow}>
               {SYMPTOMS.map((symptom) => (
                 <TouchableOpacity
@@ -75,13 +77,13 @@ export default function SideEffectsScreen() {
                       selectedSymptoms.includes(symptom) && styles.chipTextSelected,
                     ]}
                   >
-                    {symptom}
+                    {t.symptoms[symptom]}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            <Text style={styles.label}>강도 (1~5)</Text>
+            <Text style={styles.label}>{t.sideEffects.intensityLabel}</Text>
             <View style={styles.chipRow}>
               {INTENSITY_LEVELS.map((level) => (
                 <TouchableOpacity
@@ -96,41 +98,43 @@ export default function SideEffectsScreen() {
               ))}
             </View>
 
-            <Text style={styles.label}>메모</Text>
+            <Text style={styles.label}>{t.sideEffects.notesLabel}</Text>
             <TextInput
               style={styles.input}
               value={notes}
               onChangeText={setNotes}
-              placeholder="선택 입력"
+              placeholder={t.sideEffects.notesPlaceholder}
             />
 
             <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-              <Text style={styles.submitButtonText}>기록 추가</Text>
+              <Text style={styles.submitButtonText}>{t.sideEffects.addButton}</Text>
             </TouchableOpacity>
 
-            <Text style={styles.sectionTitle}>최근 30일 요약</Text>
+            <Text style={styles.sectionTitle}>{t.sideEffects.summaryTitle}</Text>
             {Object.keys(summary).length === 0 ? (
-              <Text style={styles.emptyText}>최근 30일간 기록이 없어요.</Text>
+              <Text style={styles.emptyText}>{t.sideEffects.summaryEmpty}</Text>
             ) : (
               <View style={styles.summaryRow}>
                 {(Object.entries(summary) as [Symptom, number][]).map(([symptom, count]) => (
                   <View key={symptom} style={styles.summaryPill}>
                     <Text style={styles.summaryPillText}>
-                      {symptom} {count}회
+                      {t.symptoms[symptom]} {t.sideEffects.timesSuffix(count)}
                     </Text>
                   </View>
                 ))}
               </View>
             )}
 
-            <Text style={styles.sectionTitle}>기록 목록</Text>
+            <Text style={styles.sectionTitle}>{t.sideEffects.listTitle}</Text>
           </View>
         }
-        ListEmptyComponent={<Text style={styles.emptyText}>기록이 없어요.</Text>}
+        ListEmptyComponent={<Text style={styles.emptyText}>{t.sideEffects.listEmpty}</Text>}
         renderItem={({ item }) => (
           <View style={styles.logRow}>
             <Text style={styles.logDate}>{formatDate(item.date)}</Text>
-            <Text style={styles.logSymptoms}>{item.symptoms.join(', ')} · 강도 {item.intensity}</Text>
+            <Text style={styles.logSymptoms}>
+              {item.symptoms.map((s) => t.symptoms[s]).join(', ')} · {t.sideEffects.intensityPrefix} {item.intensity}
+            </Text>
             {item.notes ? <Text style={styles.logNotes}>{item.notes}</Text> : null}
           </View>
         )}

@@ -2,11 +2,13 @@ import React, { useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppData } from '../context/AppDataContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { DoseRecord } from '../types';
 import { formatDateTime } from '../utils/dateUtils';
 
 export default function HistoryScreen() {
   const { doseRecords } = useAppData();
+  const { t } = useLanguage();
 
   const sorted = useMemo<DoseRecord[]>(
     () => [...doseRecords].sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()),
@@ -15,17 +17,17 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <Text style={styles.title}>투여 기록</Text>
+      <Text style={styles.title}>{t.history.title}</Text>
       <FlatList
         data={sorted}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={<Text style={styles.emptyText}>아직 기록된 투여가 없어요.</Text>}
+        ListEmptyComponent={<Text style={styles.emptyText}>{t.history.empty}</Text>}
         renderItem={({ item }) => (
           <View style={styles.row}>
             <View>
               <Text style={styles.rowDate}>{formatDateTime(item.dateTime)}</Text>
-              <Text style={styles.rowSub}>{item.site}</Text>
+              <Text style={styles.rowSub}>{t.sites[item.site]}</Text>
             </View>
             <Text style={styles.rowDose}>{item.doseMg}mg</Text>
           </View>

@@ -41,5 +41,3 @@ export function formatDate(iso: string): string {
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}.${m}.${d}`;
 }
-
-export const WEEKDAY_LABELS_KO = ['일', '월', '화', '수', '목', '금', '토'];

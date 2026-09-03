@@ -11,13 +11,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppData } from '../context/AppDataContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { DRUG_NAMES, DrugName } from '../types';
-import { WEEKDAY_LABELS_KO, toDateKey } from '../utils/dateUtils';
+import { toDateKey } from '../utils/dateUtils';
 import { ensureNotificationPermissions } from '../utils/notifications';
 
 export default function OnboardingScreen() {
   const { saveProfile } = useAppData();
-  const [drugName, setDrugName] = useState<DrugName>('위고비');
+  const { t } = useLanguage();
+  const [drugName, setDrugName] = useState<DrugName>('wegovy');
   const [customDrugName, setCustomDrugName] = useState('');
   const [doseMg, setDoseMg] = useState('0.25');
   const [dayOfWeek, setDayOfWeek] = useState(new Date().getDay());
@@ -26,14 +28,14 @@ export default function OnboardingScreen() {
   const handleComplete = async () => {
     const parsedDose = parseFloat(doseMg);
     if (Number.isNaN(parsedDose) || parsedDose <= 0) return;
-    if (drugName === '기타' && customDrugName.trim().length === 0) return;
+    if (drugName === 'other' && customDrugName.trim().length === 0) return;
 
     setSubmitting(true);
     try {
       await ensureNotificationPermissions();
       await saveProfile({
         drugName,
-        customDrugName: drugName === '기타' ? customDrugName.trim() : undefined,
+        customDrugName: drugName === 'other' ? customDrugName.trim() : undefined,
         doseMg: parsedDose,
         doseSchedule: [{ date: toDateKey(new Date()), doseMg: parsedDose }],
         dayOfWeek,
@@ -50,10 +52,10 @@ export default function OnboardingScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.title}>GLP-1 리마인더 시작하기</Text>
-          <Text style={styles.subtitle}>복용 중인 약물 정보를 알려주세요.</Text>
+          <Text style={styles.title}>{t.onboarding.title}</Text>
+          <Text style={styles.subtitle}>{t.onboarding.subtitle}</Text>
 
-          <Text style={styles.label}>약물 선택</Text>
+          <Text style={styles.label}>{t.onboarding.selectDrug}</Text>
           <View style={styles.chipRow}>
             {DRUG_NAMES.map((name) => (
               <TouchableOpacity
@@ -62,36 +64,36 @@ export default function OnboardingScreen() {
                 onPress={() => setDrugName(name)}
               >
                 <Text style={[styles.chipText, drugName === name && styles.chipTextSelected]}>
-                  {name}
+                  {t.drugNames[name]}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          {drugName === '기타' && (
+          {drugName === 'other' && (
             <>
-              <Text style={styles.label}>약물명 직접 입력</Text>
+              <Text style={styles.label}>{t.onboarding.customDrugLabel}</Text>
               <TextInput
                 style={styles.input}
                 value={customDrugName}
                 onChangeText={setCustomDrugName}
-                placeholder="예: 삭센다"
+                placeholder={t.onboarding.customDrugPlaceholder}
               />
             </>
           )}
 
-          <Text style={styles.label}>현재 용량 (mg)</Text>
+          <Text style={styles.label}>{t.onboarding.doseLabel}</Text>
           <TextInput
             style={styles.input}
             value={doseMg}
             onChangeText={setDoseMg}
             keyboardType="decimal-pad"
-            placeholder="0.25"
+            placeholder={t.onboarding.dosePlaceholder}
           />
 
-          <Text style={styles.label}>투여 요일</Text>
+          <Text style={styles.label}>{t.onboarding.dayLabel}</Text>
           <View style={styles.chipRow}>
-            {WEEKDAY_LABELS_KO.map((label, index) => (
+            {t.weekdaysShort.map((label, index) => (
               <TouchableOpacity
                 key={label}
                 style={[styles.dayChip, dayOfWeek === index && styles.chipSelected]}
@@ -109,7 +111,7 @@ export default function OnboardingScreen() {
             onPress={handleComplete}
             disabled={submitting}
           >
-            <Text style={styles.submitButtonText}>시작하기</Text>
+            <Text style={styles.submitButtonText}>{t.onboarding.start}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

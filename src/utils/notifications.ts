@@ -1,5 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { LanguageCode } from '../i18n/languages';
+import { getTranslations } from '../i18n/translations';
 import { MedicationProfile } from '../types';
 
 export const DOSE_REMINDER_ID = 'dose-reminder';
@@ -35,19 +37,22 @@ if (Platform.OS === 'android') {
 export async function scheduleWeeklyDoseReminder(
   profile: MedicationProfile,
   hour: number,
-  minute: number
+  minute: number,
+  language: LanguageCode
 ): Promise<void> {
   if (isWeb) return; // expo-notifications has no scheduling support on web
 
   await Notifications.cancelScheduledNotificationAsync(DOSE_REMINDER_ID).catch(() => {});
 
-  const drugLabel = profile.drugName === '기타' ? profile.customDrugName ?? '주사제' : profile.drugName;
+  const t = getTranslations(language);
+  const drugLabel =
+    profile.drugName === 'other' ? profile.customDrugName ?? t.drugNames.other : t.drugNames[profile.drugName];
 
   await Notifications.scheduleNotificationAsync({
     identifier: DOSE_REMINDER_ID,
     content: {
-      title: '투약 알림',
-      body: `오늘은 ${drugLabel} 투여일이에요. 잊지 말고 맞아주세요!`,
+      title: t.notifications.doseTitle,
+      body: t.notifications.doseBody(drugLabel),
       categoryIdentifier: NOTIFICATION_CATEGORY_DOSE,
       data: { type: DOSE_REMINDER_ID },
     },
@@ -60,7 +65,7 @@ export async function scheduleWeeklyDoseReminder(
   });
 }
 
-export async function scheduleRefillReminder(refillReminderDate: Date): Promise<void> {
+export async function scheduleRefillReminder(refillReminderDate: Date, language: LanguageCode): Promise<void> {
   if (isWeb) return; // expo-notifications has no scheduling support on web
 
   await Notifications.cancelScheduledNotificationAsync(REFILL_REMINDER_ID).catch(() => {});
@@ -71,11 +76,13 @@ export async function scheduleRefillReminder(refillReminderDate: Date): Promise<
     return;
   }
 
+  const t = getTranslations(language);
+
   await Notifications.scheduleNotificationAsync({
     identifier: REFILL_REMINDER_ID,
     content: {
-      title: '펜 재고 부족 예정',
-      body: '펜 재고가 곧 소진될 예정이에요. 처방 리필을 준비하세요.',
+      title: t.notifications.refillTitle,
+      body: t.notifications.refillBody,
       data: { type: REFILL_REMINDER_ID },
     },
     trigger: {
