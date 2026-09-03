@@ -1,4 +1,4 @@
-import { isExpoGo } from '../utils/environment';
+import { isNativeAdsAvailable } from '../utils/environment';
 
 let interstitial: import('react-native-google-mobile-ads').InterstitialAd | null = null;
 let isLoaded = false;
@@ -27,10 +27,10 @@ function loadInterstitial() {
 
 /**
  * Call once (e.g. app startup) to warm up the first interstitial.
- * No-ops inside Expo Go, since the native ads module isn't available there.
+ * No-ops in Expo Go or on web, since the native ads module isn't available there.
  */
 export function preloadInterstitialAd() {
-  if (isExpoGo) return;
+  if (!isNativeAdsAvailable) return;
   if (!interstitial) {
     loadInterstitial();
   }
@@ -38,11 +38,11 @@ export function preloadInterstitialAd() {
 
 /**
  * Shows the preloaded interstitial ad, intended to be triggered right
- * after the user marks a dose as complete. No-ops silently if running in
- * Expo Go, or if the ad hasn't finished loading yet.
+ * after the user marks a dose as complete. No-ops silently in Expo Go,
+ * on web, or if the ad hasn't finished loading yet.
  */
 export function showInterstitialAfterDoseLogged() {
-  if (isExpoGo) return;
+  if (!isNativeAdsAvailable) return;
   if (interstitial && isLoaded) {
     interstitial.show();
   }

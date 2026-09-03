@@ -7,6 +7,8 @@ export const REFILL_REMINDER_ID = 'refill-reminder';
 
 export const NOTIFICATION_CATEGORY_DOSE = 'dose-reminder-category';
 
+const isWeb = Platform.OS === 'web';
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
@@ -35,6 +37,8 @@ export async function scheduleWeeklyDoseReminder(
   hour: number,
   minute: number
 ): Promise<void> {
+  if (isWeb) return; // expo-notifications has no scheduling support on web
+
   await Notifications.cancelScheduledNotificationAsync(DOSE_REMINDER_ID).catch(() => {});
 
   const drugLabel = profile.drugName === '기타' ? profile.customDrugName ?? '주사제' : profile.drugName;
@@ -57,6 +61,8 @@ export async function scheduleWeeklyDoseReminder(
 }
 
 export async function scheduleRefillReminder(refillReminderDate: Date): Promise<void> {
+  if (isWeb) return; // expo-notifications has no scheduling support on web
+
   await Notifications.cancelScheduledNotificationAsync(REFILL_REMINDER_ID).catch(() => {});
 
   const trigger = new Date(refillReminderDate);
@@ -80,5 +86,7 @@ export async function scheduleRefillReminder(refillReminderDate: Date): Promise<
 }
 
 export async function cancelAllNotifications(): Promise<void> {
+  if (isWeb) return; // expo-notifications has no scheduling support on web
+
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
