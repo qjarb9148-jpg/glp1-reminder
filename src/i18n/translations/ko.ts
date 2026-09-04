@@ -1,4 +1,8 @@
 const ko = {
+  common: {
+    ok: '확인',
+  },
+
   weekdaysShort: ['일', '월', '화', '수', '목', '금', '토'],
   weekdaysLong: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
 
@@ -62,6 +66,7 @@ const ko = {
     logSuccessBody: '투여 기록이 저장되었어요.',
     logErrorTitle: '오류',
     logErrorBody: '투여 기록 저장에 실패했어요.',
+    goHome: '홈으로 가기',
   },
 
   history: {

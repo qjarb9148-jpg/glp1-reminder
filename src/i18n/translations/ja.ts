@@ -1,6 +1,10 @@
 import { TranslationDict } from './types';
 
 const ja: TranslationDict = {
+  common: {
+    ok: 'OK',
+  },
+
   weekdaysShort: ['日', '月', '火', '水', '木', '金', '土'],
   weekdaysLong: ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'],
 
@@ -64,6 +68,7 @@ const ja: TranslationDict = {
     logSuccessBody: '投与記録を保存しました。',
     logErrorTitle: 'エラー',
     logErrorBody: '投与記録の保存に失敗しました。',
+    goHome: 'ホームに戻る',
   },
 
   history: {

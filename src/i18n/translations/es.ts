@@ -1,6 +1,10 @@
 import { TranslationDict } from './types';
 
 const es: TranslationDict = {
+  common: {
+    ok: 'Aceptar',
+  },
+
   weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
   weekdaysLong: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
 
@@ -64,6 +68,7 @@ const es: TranslationDict = {
     logSuccessBody: 'Se guardó el registro de la dosis.',
     logErrorTitle: 'Error',
     logErrorBody: 'No se pudo guardar el registro de la dosis.',
+    goHome: 'Ir al inicio',
   },
 
   history: {

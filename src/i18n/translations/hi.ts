@@ -1,6 +1,10 @@
 import { TranslationDict } from './types';
 
 const hi: TranslationDict = {
+  common: {
+    ok: 'ठीक है',
+  },
+
   weekdaysShort: ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'],
   weekdaysLong: ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'],
 
@@ -64,6 +68,7 @@ const hi: TranslationDict = {
     logSuccessBody: 'खुराक रिकॉर्ड सेव हो गया।',
     logErrorTitle: 'त्रुटि',
     logErrorBody: 'खुराक रिकॉर्ड सेव करने में विफल।',
+    goHome: 'होम पर जाएं',
   },
 
   history: {
