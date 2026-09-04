@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AdBanner from '../ads/AdBanner';
 import { preloadInterstitialAd, showInterstitialAfterDoseLogged } from '../ads/interstitial';
 import LanguagePicker from '../components/LanguagePicker';
+import MessageModal from '../components/MessageModal';
 import { useAppData } from '../context/AppDataContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { SUPPORTED_LANGUAGES } from '../i18n/languages';
@@ -21,6 +22,10 @@ export default function HomeScreen() {
   const { t, languagePreference } = useLanguage();
   const [logging, setLogging] = useState(false);
   const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
+  const [resultModal, setResultModal] = useState<{ visible: boolean; success: boolean }>({
+    visible: false,
+    success: true,
+  });
 
   const currentLanguageLabel =
     languagePreference === 'system'
@@ -61,13 +66,15 @@ export default function HomeScreen() {
     try {
       await addDoseRecord(nextSite);
       showInterstitialAfterDoseLogged();
-      Alert.alert(t.home.logSuccessTitle, t.home.logSuccessBody);
+      setResultModal({ visible: true, success: true });
     } catch (e) {
-      Alert.alert(t.home.logErrorTitle, t.home.logErrorBody);
+      setResultModal({ visible: true, success: false });
     } finally {
       setLogging(false);
     }
   };
+
+  const closeResultModal = () => setResultModal((prev) => ({ ...prev, visible: false }));
 
   const languageButton = (
     <TouchableOpacity style={styles.languageButton} onPress={() => setLanguagePickerVisible(true)}>
@@ -137,6 +144,13 @@ export default function HomeScreen() {
 
       <AdBanner />
       <LanguagePicker visible={languagePickerVisible} onClose={() => setLanguagePickerVisible(false)} />
+      <MessageModal
+        visible={resultModal.visible}
+        title={resultModal.success ? t.home.logSuccessTitle : t.home.logErrorTitle}
+        message={resultModal.success ? t.home.logSuccessBody : t.home.logErrorBody}
+        buttonLabel={t.home.goHome}
+        onClose={closeResultModal}
+      />
     </SafeAreaView>
   );
 }

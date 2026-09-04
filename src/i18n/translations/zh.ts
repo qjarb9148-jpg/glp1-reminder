@@ -1,6 +1,10 @@
 import { TranslationDict } from './types';
 
 const zh: TranslationDict = {
+  common: {
+    ok: '确定',
+  },
+
   weekdaysShort: ['日', '一', '二', '三', '四', '五', '六'],
   weekdaysLong: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
 
@@ -64,6 +68,7 @@ const zh: TranslationDict = {
     logSuccessBody: '注射记录已保存。',
     logErrorTitle: '错误',
     logErrorBody: '保存注射记录失败。',
+    goHome: '返回首页',
   },
 
   history: {

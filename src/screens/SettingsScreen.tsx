@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ConfirmModal from '../components/ConfirmModal';
 import LanguagePicker from '../components/LanguagePicker';
+import MessageModal from '../components/MessageModal';
 import { useAppData } from '../context/AppDataContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { SUPPORTED_LANGUAGES } from '../i18n/languages';
@@ -15,6 +17,8 @@ export default function SettingsScreen() {
   const [escalationDate, setEscalationDate] = useState(toDateKey(new Date()));
   const [escalationDose, setEscalationDose] = useState('');
   const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
+  const [savedModalVisible, setSavedModalVisible] = useState(false);
+  const [resetConfirmVisible, setResetConfirmVisible] = useState(false);
 
   const currentLanguageLabel =
     languagePreference === 'system'
@@ -27,7 +31,7 @@ export default function SettingsScreen() {
     if (Number.isNaN(h) || h < 0 || h > 23) return;
     if (Number.isNaN(m) || m < 0 || m > 59) return;
     await updateSettings({ notificationHour: h, notificationMinute: m });
-    Alert.alert(t.settings.savedTitle, t.settings.savedBody);
+    setSavedModalVisible(true);
   };
 
   const handleChangeDay = async (dayOfWeek: number) => {
@@ -57,11 +61,9 @@ export default function SettingsScreen() {
     setEscalationDose('');
   };
 
-  const handleReset = () => {
-    Alert.alert(t.settings.resetTitle, t.settings.resetBody, [
-      { text: t.settings.resetCancel, style: 'cancel' },
-      { text: t.settings.resetConfirm, style: 'destructive', onPress: () => resetAllData() },
-    ]);
+  const handleConfirmReset = () => {
+    setResetConfirmVisible(false);
+    resetAllData();
   };
 
   return (
@@ -147,12 +149,29 @@ export default function SettingsScreen() {
           </>
         )}
 
-        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+        <TouchableOpacity style={styles.resetButton} onPress={() => setResetConfirmVisible(true)}>
           <Text style={styles.resetButtonText}>{t.settings.resetButton}</Text>
         </TouchableOpacity>
       </ScrollView>
 
       <LanguagePicker visible={languagePickerVisible} onClose={() => setLanguagePickerVisible(false)} />
+      <MessageModal
+        visible={savedModalVisible}
+        title={t.settings.savedTitle}
+        message={t.settings.savedBody}
+        buttonLabel={t.common.ok}
+        onClose={() => setSavedModalVisible(false)}
+      />
+      <ConfirmModal
+        visible={resetConfirmVisible}
+        title={t.settings.resetTitle}
+        message={t.settings.resetBody}
+        cancelLabel={t.settings.resetCancel}
+        confirmLabel={t.settings.resetConfirm}
+        destructive
+        onCancel={() => setResetConfirmVisible(false)}
+        onConfirm={handleConfirmReset}
+      />
     </SafeAreaView>
   );
 }
